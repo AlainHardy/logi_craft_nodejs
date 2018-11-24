@@ -1,0 +1,16 @@
+{
+  "name": "logi_craft_nodejs",
+  "version": "0.0.0",
+  "description": "Test of communication between Logitech Options and the Craft Keyboard",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "make": "pkg index.js --output craft.exe"
+  },
+  "author": "Alain Hardy",
+  "license": "",
+  "dependencies": {
+    "pkg": "^4.3.4",
+    "websocket": "^1.0.28"
+  }
+}
