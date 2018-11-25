@@ -9,13 +9,24 @@ const pid = process.pid
 
 let sessionId
 
+let colorFlag = 0b100 // Red Green Blue
+let colorValue = 255
+
+function displayColor () {
+  const maskColor = (mask) => {
+    return (colorFlag === mask) * colorValue
+  }
+  console.clear()
+  console.log(`R: ${maskColor(0b100)}, G: ${maskColor(0b010)}, B: ${maskColor(0b001)}`)
+}
+
 client.on('connectFailed', (error) => {
   console.log(`Connect Error: ${error}`)
 })
 
 client.on('connect', (connection) => {
-  console.log('Websocket Client Connected')
-
+  // console.log('Websocket Client Connected')
+  displayColor()
   let resetToolChange = true
 
   let initJson = {
@@ -25,6 +36,8 @@ client.on('connect', (connection) => {
     execName: 'craft.exe',
     application_version: '0.0.0'
   }
+
+  let sliding = false
 
   connection.on('error', (error) => {
     console.log(`Connection Error: ${error}`)
@@ -45,7 +58,7 @@ client.on('connect', (connection) => {
           resetToolChange = true
           break
         case 'activate_plugin':
-          console.log(`resetToolChange state: ${resetToolChange}`)
+          // console.log(`resetToolChange state: ${resetToolChange}`)
           if (resetToolChange) {
             let response = {
               message_type: 'tool_change',
@@ -60,13 +73,29 @@ client.on('connect', (connection) => {
           }
           break
         case 'crown_touch_event':
-          console.log(`touch`)
-          console.log(resObj)
+          // console.log(`touch`)
+          // console.log(resObj)
+          if (sliding) {
+            sliding = false
+            break
+          }
+          if (resObj.touch_state === 0) {
+            colorFlag = colorFlag >> 1
+            if (colorFlag === 0) colorFlag = 0b100
+            displayColor()
+          }
           break
         case 'crown_turn_event':
-          console.log(`turn`)
-          console.log(resObj)
-          // console.log(`turn delta : ${resObj.ratchet_delta}`)
+          // console.log(`turn`)
+          // console.log(resObj)
+          sliding = true
+          if (resObj.ratchet_delta === 0) break
+
+          colorValue += resObj.delta
+          if (colorValue < 0) colorValue = 0
+          if (colorValue > 255) colorValue = 255
+
+          displayColor()
           break
       }
     } else console.log(`Content of message : ${message}`)
