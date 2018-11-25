@@ -37,8 +37,8 @@ client.on('connect', (connection) => {
   connection.on('message', (message) => {
     if (typeof message === 'object') {
       // console.log(`Content of message : ${JSON.stringify(message)}`)
-      resObj = JSON.parse(message.utf8Data)
-      //console.log(`---- Message Type : ${resObj.message_type}`)
+      let resObj = JSON.parse(message.utf8Data)
+      // console.log(`---- Message Type : ${resObj.message_type}`)
       switch (resObj.message_type) {
         case 'register_ack':
           sessionId = resObj.session_id
@@ -53,8 +53,8 @@ client.on('connect', (connection) => {
               tool_id: 'slider',
               reset_options: true
             }
-            //console.log(response)
-            //console.log(`Response send to activate : ${JSON.stringify.response}`)
+            // console.log(response)
+            // console.log(`Response send to activate : ${JSON.stringify.response}`)
             connection.send(JSON.stringify(response))
             resetToolChange = false
           }
@@ -66,30 +66,13 @@ client.on('connect', (connection) => {
         case 'crown_turn_event':
           console.log(`turn`)
           console.log(resObj)
-          //console.log(`turn delta : ${resObj.ratchet_delta}`)
+          // console.log(`turn delta : ${resObj.ratchet_delta}`)
           break
-
       }
-    }
-    else
-      console.log(`Content of message : ${message}`)
+    } else console.log(`Content of message : ${message}`)
   })
 
   connection.send(JSON.stringify(initJson))
 })
 
-
 client.connect(logiOptionsUrl)
-/*
-
-
-let toolUpdateJson = {
-  message_type: 'tool_update',
-  session_id: ,
-  show_overlay: true,
-  tool_id
-}
-
-let toolOptionsJson = {
-  name:
-}*/
