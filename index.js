@@ -1,3 +1,5 @@
+const chalk = require('chalk')
+
 const WebSocketClient = require('websocket').client
 const client = new WebSocketClient()
 
@@ -18,6 +20,15 @@ function displayColor () {
   }
   console.clear()
   console.log(`R: ${maskColor(0b100)}, G: ${maskColor(0b010)}, B: ${maskColor(0b001)}`)
+
+  let emptySpace = ''
+  for (let i = 0; i < colorValue; i++) emptySpace += ' '
+
+  let bgColor = colorFlag === 0b100 ? chalk.bgRed
+    : colorFlag === 0b010 ? chalk.bgGreen
+      : colorFlag === 0b001 ? chalk.bgBlue : chalk.bgWhite
+
+  console.log(bgColor(emptySpace))
 }
 
 client.on('connectFailed', (error) => {
@@ -68,6 +79,7 @@ client.on('connect', (connection) => {
             }
             // console.log(response)
             // console.log(`Response send to activate : ${JSON.stringify.response}`)
+
             connection.send(JSON.stringify(response))
             resetToolChange = false
           }
@@ -75,6 +87,7 @@ client.on('connect', (connection) => {
         case 'crown_touch_event':
           // console.log(`touch`)
           // console.log(resObj)
+
           if (sliding) {
             sliding = false
             break
@@ -88,6 +101,7 @@ client.on('connect', (connection) => {
         case 'crown_turn_event':
           // console.log(`turn`)
           // console.log(resObj)
+
           sliding = true
           if (resObj.ratchet_delta === 0) break
 
