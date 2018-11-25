@@ -12,23 +12,26 @@ const pid = process.pid
 let sessionId
 
 let colorFlag = 0b100 // Red Green Blue
-let colorValue = 255
+const colorValues = {
+  red: 0,
+  green: 0,
+  blue: 0
+}
 
 function displayColor () {
-  const maskColor = (mask) => {
-    return (colorFlag === mask) * colorValue
+  const focusedColor = (mask, value) => {
+    return (colorFlag === mask) ? chalk.magenta(value) : value
   }
   console.clear()
-  console.log(`R: ${maskColor(0b100)}, G: ${maskColor(0b010)}, B: ${maskColor(0b001)}`)
+  console.log(`R: ${focusedColor(0b100, colorValues.red)}, G: ${focusedColor(0b010, colorValues.green)}, B: ${focusedColor(0b001, colorValues.blue)}`)
 
-  let emptySpace = ''
-  for (let i = 0; i < colorValue; i++) emptySpace += ' '
-
-  let bgColor = colorFlag === 0b100 ? chalk.bgRed
-    : colorFlag === 0b010 ? chalk.bgGreen
-      : colorFlag === 0b001 ? chalk.bgBlue : chalk.bgWhite
-
-  console.log(bgColor(emptySpace))
+  let output = ''
+  for (let i = 0; i < 255; i++) {
+    output += colorValues.red > i ? chalk.bgRed(' ') : ''
+    output += colorValues.green > i ? chalk.bgGreen(' ') : ''
+    output += colorValues.blue > i ? chalk.bgBlue(' ') : ''
+  }
+  console.log(output)
 }
 
 client.on('connectFailed', (error) => {
@@ -105,9 +108,14 @@ client.on('connect', (connection) => {
           sliding = true
           if (resObj.ratchet_delta === 0) break
 
-          colorValue += resObj.delta
-          if (colorValue < 0) colorValue = 0
-          if (colorValue > 255) colorValue = 255
+          let index = colorFlag === 0b100 ? 'red'
+            : colorFlag === 0b010 ? 'green'
+              : colorFlag === 0b001 ? 'blue'
+                : undefined
+
+          colorValues[index] += resObj.delta
+          if (colorValues[index] < 0) colorValues[index] = 0
+          if (colorValues[index] > 255) colorValues[index] = 255
 
           displayColor()
           break
